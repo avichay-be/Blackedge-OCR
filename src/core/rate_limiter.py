@@ -60,10 +60,7 @@ class RateLimiter:
 
         logger.debug(
             "RateLimiter initialized",
-            extra={
-                "rate_per_minute": rate_per_minute,
-                "initial_tokens": self.tokens
-            }
+            extra={"rate_per_minute": rate_per_minute, "initial_tokens": self.tokens},
         )
 
     def _replenish_tokens(self):
@@ -89,8 +86,8 @@ class RateLimiter:
             extra={
                 "elapsed_seconds": elapsed,
                 "tokens_added": tokens_to_add,
-                "current_tokens": self.tokens
-            }
+                "current_tokens": self.tokens,
+            },
         )
 
     async def acquire(self):
@@ -115,8 +112,8 @@ class RateLimiter:
                         "Token acquired",
                         extra={
                             "remaining_tokens": self.tokens,
-                            "rate_per_minute": self.rate_per_minute
-                        }
+                            "rate_per_minute": self.rate_per_minute,
+                        },
                     )
                     return
 
@@ -128,8 +125,8 @@ class RateLimiter:
                     extra={
                         "wait_seconds": wait_time,
                         "current_tokens": self.tokens,
-                        "rate_per_minute": self.rate_per_minute
-                    }
+                        "rate_per_minute": self.rate_per_minute,
+                    },
                 )
 
                 # Release lock while waiting
@@ -178,10 +175,7 @@ class RateLimiter:
 
         logger.info(
             "RateLimiter reset",
-            extra={
-                "rate_per_minute": self.rate_per_minute,
-                "tokens": self.tokens
-            }
+            extra={"rate_per_minute": self.rate_per_minute, "tokens": self.tokens},
         )
 
 
@@ -210,8 +204,8 @@ class ProviderRateLimiter:
             "ProviderRateLimiter initialized",
             extra={
                 "providers": list(self._limiters.keys()),
-                "rate_limits": RATE_LIMITS
-            }
+                "rate_limits": RATE_LIMITS,
+            },
         )
 
     def get(self, provider: str) -> RateLimiter:

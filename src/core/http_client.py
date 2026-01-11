@@ -44,7 +44,7 @@ class HTTPClient:
     def __init__(
         self,
         timeout: int = REQUEST_TIMEOUT,
-        max_connections: int = MAX_CONCURRENT_REQUESTS * 2
+        max_connections: int = MAX_CONCURRENT_REQUESTS * 2,
     ):
         """
         Initialize HTTP client with timeout and connection pool settings.
@@ -60,10 +60,7 @@ class HTTPClient:
 
         logger.debug(
             "HTTPClient initialized",
-            extra={
-                "timeout": timeout,
-                "max_connections": max_connections
-            }
+            extra={"timeout": timeout, "max_connections": max_connections},
         )
 
     async def __aenter__(self):
@@ -75,21 +72,16 @@ class HTTPClient:
         """
         limits = httpx.Limits(
             max_connections=self.max_connections,
-            max_keepalive_connections=self.max_connections // 2
+            max_keepalive_connections=self.max_connections // 2,
         )
 
         self.client = httpx.AsyncClient(
-            timeout=httpx.Timeout(self.timeout),
-            limits=limits,
-            follow_redirects=True
+            timeout=httpx.Timeout(self.timeout), limits=limits, follow_redirects=True
         )
 
         logger.info(
             "HTTP client connection pool created",
-            extra={
-                "max_connections": self.max_connections,
-                "timeout": self.timeout
-            }
+            extra={"max_connections": self.max_connections, "timeout": self.timeout},
         )
 
         return self
@@ -111,7 +103,7 @@ class HTTPClient:
         self,
         url: str,
         headers: Optional[Dict[str, str]] = None,
-        params: Optional[Dict[str, Any]] = None
+        params: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         """
         Make an async GET request.
@@ -136,8 +128,8 @@ class HTTPClient:
             extra={
                 "url": url,
                 "has_headers": bool(headers),
-                "has_params": bool(params)
-            }
+                "has_params": bool(params),
+            },
         )
 
         try:
@@ -148,20 +140,14 @@ class HTTPClient:
                 extra={
                     "url": url,
                     "status_code": response.status_code,
-                    "response_size": len(response.content)
-                }
+                    "response_size": len(response.content),
+                },
             )
 
             return response
 
         except httpx.HTTPError as e:
-            logger.error(
-                "GET request failed",
-                extra={
-                    "url": url,
-                    "error": str(e)
-                }
-            )
+            logger.error("GET request failed", extra={"url": url, "error": str(e)})
             raise
 
     async def post(
@@ -170,7 +156,7 @@ class HTTPClient:
         headers: Optional[Dict[str, str]] = None,
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
-        files: Optional[Dict[str, Any]] = None
+        files: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         """
         Make an async POST request.
@@ -199,17 +185,13 @@ class HTTPClient:
                 "has_headers": bool(headers),
                 "has_json": bool(json),
                 "has_data": bool(data),
-                "has_files": bool(files)
-            }
+                "has_files": bool(files),
+            },
         )
 
         try:
             response = await self.client.post(
-                url,
-                headers=headers,
-                json=json,
-                data=data,
-                files=files
+                url, headers=headers, json=json, data=data, files=files
             )
 
             logger.debug(
@@ -217,20 +199,14 @@ class HTTPClient:
                 extra={
                     "url": url,
                     "status_code": response.status_code,
-                    "response_size": len(response.content)
-                }
+                    "response_size": len(response.content),
+                },
             )
 
             return response
 
         except httpx.HTTPError as e:
-            logger.error(
-                "POST request failed",
-                extra={
-                    "url": url,
-                    "error": str(e)
-                }
-            )
+            logger.error("POST request failed", extra={"url": url, "error": str(e)})
             raise
 
     async def put(
@@ -238,7 +214,7 @@ class HTTPClient:
         url: str,
         headers: Optional[Dict[str, str]] = None,
         json: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None
+        data: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         """
         Make an async PUT request.
@@ -265,44 +241,33 @@ class HTTPClient:
                 "url": url,
                 "has_headers": bool(headers),
                 "has_json": bool(json),
-                "has_data": bool(data)
-            }
+                "has_data": bool(data),
+            },
         )
 
         try:
-            response = await self.client.put(
-                url,
-                headers=headers,
-                json=json,
-                data=data
-            )
+            response = await self.client.put(url, headers=headers, json=json, data=data)
 
             logger.debug(
                 "PUT request completed",
                 extra={
                     "url": url,
                     "status_code": response.status_code,
-                    "response_size": len(response.content)
-                }
+                    "response_size": len(response.content),
+                },
             )
 
             return response
 
         except httpx.HTTPError as e:
-            logger.error(
-                "PUT request failed",
-                extra={
-                    "url": url,
-                    "error": str(e)
-                }
-            )
+            logger.error("PUT request failed", extra={"url": url, "error": str(e)})
             raise
 
     async def delete(
         self,
         url: str,
         headers: Optional[Dict[str, str]] = None,
-        params: Optional[Dict[str, Any]] = None
+        params: Optional[Dict[str, Any]] = None,
     ) -> httpx.Response:
         """
         Make an async DELETE request.
@@ -327,42 +292,28 @@ class HTTPClient:
             extra={
                 "url": url,
                 "has_headers": bool(headers),
-                "has_params": bool(params)
-            }
+                "has_params": bool(params),
+            },
         )
 
         try:
-            response = await self.client.delete(
-                url,
-                headers=headers,
-                params=params
-            )
+            response = await self.client.delete(url, headers=headers, params=params)
 
             logger.debug(
                 "DELETE request completed",
-                extra={
-                    "url": url,
-                    "status_code": response.status_code
-                }
+                extra={"url": url, "status_code": response.status_code},
             )
 
             return response
 
         except httpx.HTTPError as e:
-            logger.error(
-                "DELETE request failed",
-                extra={
-                    "url": url,
-                    "error": str(e)
-                }
-            )
+            logger.error("DELETE request failed", extra={"url": url, "error": str(e)})
             raise
 
 
 @asynccontextmanager
 async def get_http_client(
-    timeout: int = REQUEST_TIMEOUT,
-    max_connections: int = MAX_CONCURRENT_REQUESTS * 2
+    timeout: int = REQUEST_TIMEOUT, max_connections: int = MAX_CONCURRENT_REQUESTS * 2
 ):
     """
     Convenience async context manager for creating HTTP client.

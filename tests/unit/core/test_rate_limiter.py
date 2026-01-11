@@ -9,11 +9,7 @@ import asyncio
 import time
 from unittest.mock import patch
 
-from src.core.rate_limiter import (
-    RateLimiter,
-    ProviderRateLimiter,
-    get_provider_limiter
-)
+from src.core.rate_limiter import RateLimiter, ProviderRateLimiter, get_provider_limiter
 
 
 @pytest.mark.asyncio
@@ -103,7 +99,7 @@ class TestRateLimiter:
             limiter.acquire(),
             limiter.acquire(),
             limiter.acquire(),
-            limiter.acquire()
+            limiter.acquire(),
         )
         elapsed = time.time() - start
 

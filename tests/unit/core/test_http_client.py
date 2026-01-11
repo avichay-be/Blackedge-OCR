@@ -61,7 +61,7 @@ class TestHTTPClient:
         with pytest.raises(RuntimeError, match="must be used as async context manager"):
             await client.delete("https://example.com")
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_get_request(self, mock_async_client):
         """Test GET request with mocked httpx client."""
         # Setup mock response
@@ -79,7 +79,7 @@ class TestHTTPClient:
             response = await client.get(
                 "https://api.example.com/test",
                 headers={"Authorization": "Bearer token"},
-                params={"page": 1}
+                params={"page": 1},
             )
 
             assert response.status_code == 200
@@ -89,10 +89,10 @@ class TestHTTPClient:
             mock_client_instance.get.assert_called_once_with(
                 "https://api.example.com/test",
                 headers={"Authorization": "Bearer token"},
-                params={"page": 1}
+                params={"page": 1},
             )
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_post_request_with_json(self, mock_async_client):
         """Test POST request with JSON payload."""
         # Setup mock response
@@ -110,7 +110,7 @@ class TestHTTPClient:
             response = await client.post(
                 "https://api.example.com/create",
                 json={"name": "test"},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
 
             assert response.status_code == 201
@@ -118,7 +118,7 @@ class TestHTTPClient:
             # Verify the call
             mock_client_instance.post.assert_called_once()
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_post_request_with_files(self, mock_async_client):
         """Test POST request with file upload."""
         # Setup mock response
@@ -135,12 +135,12 @@ class TestHTTPClient:
         async with HTTPClient() as client:
             response = await client.post(
                 "https://api.example.com/upload",
-                files={"file": ("test.pdf", b"pdf content")}
+                files={"file": ("test.pdf", b"pdf content")},
             )
 
             assert response.status_code == 200
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_put_request(self, mock_async_client):
         """Test PUT request."""
         # Setup mock response
@@ -156,13 +156,12 @@ class TestHTTPClient:
 
         async with HTTPClient() as client:
             response = await client.put(
-                "https://api.example.com/update/123",
-                json={"status": "active"}
+                "https://api.example.com/update/123", json={"status": "active"}
             )
 
             assert response.status_code == 200
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_delete_request(self, mock_async_client):
         """Test DELETE request."""
         # Setup mock response
@@ -179,12 +178,12 @@ class TestHTTPClient:
         async with HTTPClient() as client:
             response = await client.delete(
                 "https://api.example.com/delete/123",
-                headers={"Authorization": "Bearer token"}
+                headers={"Authorization": "Bearer token"},
             )
 
             assert response.status_code == 204
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_http_error_handling(self, mock_async_client):
         """Test HTTP error handling."""
         # Setup mock client to raise exception
@@ -199,7 +198,7 @@ class TestHTTPClient:
             with pytest.raises(httpx.TimeoutException):
                 await client.get("https://api.example.com/slow")
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_network_error_handling(self, mock_async_client):
         """Test network error handling."""
         # Setup mock client to raise network error
@@ -219,7 +218,7 @@ class TestHTTPClient:
 class TestGetHTTPClient:
     """Test cases for get_http_client convenience function."""
 
-    @patch('httpx.AsyncClient')
+    @patch("httpx.AsyncClient")
     async def test_convenience_function(self, mock_async_client):
         """Test get_http_client convenience function."""
         # Setup mock

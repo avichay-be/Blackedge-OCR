@@ -17,16 +17,12 @@ from typing import Callable, TypeVar, Any, Optional, Tuple, Type
 import httpx
 
 from src.core.logging import get_logger
-from src.core.constants import (
-    MAX_RETRIES,
-    RETRY_BACKOFF_FACTOR,
-    RETRY_STATUS_CODES
-)
+from src.core.constants import MAX_RETRIES, RETRY_BACKOFF_FACTOR, RETRY_STATUS_CODES
 
 logger = get_logger(__name__)
 
 # Type variable for generic function signatures
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class RetryConfig:
@@ -45,7 +41,7 @@ class RetryConfig:
         max_attempts: int = MAX_RETRIES,
         backoff_factor: float = RETRY_BACKOFF_FACTOR,
         retry_status_codes: Optional[list] = None,
-        retry_exceptions: Optional[Tuple[Type[Exception], ...]] = None
+        retry_exceptions: Optional[Tuple[Type[Exception], ...]] = None,
     ):
         """
         Initialize retry configuration.
@@ -63,7 +59,7 @@ class RetryConfig:
             httpx.TimeoutException,
             httpx.NetworkError,
             httpx.RemoteProtocolError,
-            httpx.ConnectError
+            httpx.ConnectError,
         )
 
 
@@ -86,7 +82,7 @@ def calculate_backoff(attempt: int, backoff_factor: float) -> float:
         >>> calculate_backoff(2, 2)
         8.0
     """
-    return backoff_factor * (2 ** attempt)
+    return backoff_factor * (2**attempt)
 
 
 def should_retry_status(status_code: int, retry_status_codes: list) -> bool:
@@ -104,10 +100,7 @@ def should_retry_status(status_code: int, retry_status_codes: list) -> bool:
 
 
 async def retry_async(
-    func: Callable[..., Any],
-    config: RetryConfig,
-    *args,
-    **kwargs
+    func: Callable[..., Any], config: RetryConfig, *args, **kwargs
 ) -> Any:
     """
     Execute async function with retry logic.
@@ -142,8 +135,8 @@ async def retry_async(
                                 "attempt": attempt + 1,
                                 "max_attempts": config.max_attempts,
                                 "status_code": result.status_code,
-                                "delay_seconds": delay
-                            }
+                                "delay_seconds": delay,
+                            },
                         )
 
                         await asyncio.sleep(delay)
@@ -154,8 +147,8 @@ async def retry_async(
                             "HTTP error - max retries reached",
                             extra={
                                 "attempts": config.max_attempts,
-                                "status_code": result.status_code
-                            }
+                                "status_code": result.status_code,
+                            },
                         )
                         return result
 
@@ -163,10 +156,7 @@ async def retry_async(
             if attempt > 0:
                 logger.info(
                     "Retry succeeded",
-                    extra={
-                        "attempt": attempt + 1,
-                        "total_attempts": attempt + 1
-                    }
+                    extra={"attempt": attempt + 1, "total_attempts": attempt + 1},
                 )
 
             return result
@@ -184,8 +174,8 @@ async def retry_async(
                         "max_attempts": config.max_attempts,
                         "exception": type(e).__name__,
                         "error": str(e),
-                        "delay_seconds": delay
-                    }
+                        "delay_seconds": delay,
+                    },
                 )
 
                 await asyncio.sleep(delay)
@@ -195,8 +185,8 @@ async def retry_async(
                     extra={
                         "attempts": config.max_attempts,
                         "exception": type(e).__name__,
-                        "error": str(e)
-                    }
+                        "error": str(e),
+                    },
                 )
                 raise
 
@@ -207,8 +197,8 @@ async def retry_async(
                 extra={
                     "attempt": attempt + 1,
                     "exception": type(e).__name__,
-                    "error": str(e)
-                }
+                    "error": str(e),
+                },
             )
             raise
 
@@ -221,7 +211,7 @@ def with_retry(
     max_attempts: int = MAX_RETRIES,
     backoff_factor: float = RETRY_BACKOFF_FACTOR,
     retry_status_codes: Optional[list] = None,
-    retry_exceptions: Optional[Tuple[Type[Exception], ...]] = None
+    retry_exceptions: Optional[Tuple[Type[Exception], ...]] = None,
 ):
     """
     Decorator to add retry logic to async functions.
@@ -246,7 +236,7 @@ def with_retry(
         max_attempts=max_attempts,
         backoff_factor=backoff_factor,
         retry_status_codes=retry_status_codes,
-        retry_exceptions=retry_exceptions
+        retry_exceptions=retry_exceptions,
     )
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -273,11 +263,7 @@ class RetryableHTTPClient:
             response = await retry_client.get("https://api.example.com")
     """
 
-    def __init__(
-        self,
-        http_client: Any,
-        config: Optional[RetryConfig] = None
-    ):
+    def __init__(self, http_client: Any, config: Optional[RetryConfig] = None):
         """
         Initialize retryable HTTP client.
 
@@ -292,8 +278,8 @@ class RetryableHTTPClient:
             "RetryableHTTPClient initialized",
             extra={
                 "max_attempts": self.config.max_attempts,
-                "backoff_factor": self.config.backoff_factor
-            }
+                "backoff_factor": self.config.backoff_factor,
+            },
         )
 
     async def get(self, url: str, **kwargs) -> httpx.Response:
@@ -307,12 +293,7 @@ class RetryableHTTPClient:
         Returns:
             httpx.Response: HTTP response
         """
-        return await retry_async(
-            self.http_client.get,
-            self.config,
-            url,
-            **kwargs
-        )
+        return await retry_async(self.http_client.get, self.config, url, **kwargs)
 
     async def post(self, url: str, **kwargs) -> httpx.Response:
         """
@@ -325,12 +306,7 @@ class RetryableHTTPClient:
         Returns:
             httpx.Response: HTTP response
         """
-        return await retry_async(
-            self.http_client.post,
-            self.config,
-            url,
-            **kwargs
-        )
+        return await retry_async(self.http_client.post, self.config, url, **kwargs)
 
     async def put(self, url: str, **kwargs) -> httpx.Response:
         """
@@ -343,12 +319,7 @@ class RetryableHTTPClient:
         Returns:
             httpx.Response: HTTP response
         """
-        return await retry_async(
-            self.http_client.put,
-            self.config,
-            url,
-            **kwargs
-        )
+        return await retry_async(self.http_client.put, self.config, url, **kwargs)
 
     async def delete(self, url: str, **kwargs) -> httpx.Response:
         """
@@ -361,9 +332,4 @@ class RetryableHTTPClient:
         Returns:
             httpx.Response: HTTP response
         """
-        return await retry_async(
-            self.http_client.delete,
-            self.config,
-            url,
-            **kwargs
-        )
+        return await retry_async(self.http_client.delete, self.config, url, **kwargs)

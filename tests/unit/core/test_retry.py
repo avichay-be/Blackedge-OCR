@@ -16,7 +16,7 @@ from src.core.retry import (
     should_retry_status,
     retry_async,
     with_retry,
-    RetryableHTTPClient
+    RetryableHTTPClient,
 )
 
 
@@ -84,7 +84,7 @@ class TestRetryConfig:
             max_attempts=5,
             backoff_factor=1.5,
             retry_status_codes=[429, 503],
-            retry_exceptions=(ValueError,)
+            retry_exceptions=(ValueError,),
         )
 
         assert config.max_attempts == 5
@@ -112,7 +112,7 @@ class TestRetryAsync:
             side_effect=[
                 httpx.TimeoutException("timeout"),
                 httpx.TimeoutException("timeout"),
-                "success"
+                "success",
             ]
         )
 
@@ -124,9 +124,7 @@ class TestRetryAsync:
 
     async def test_max_retries_exceeded(self):
         """Test failure after max retries exceeded."""
-        mock_func = AsyncMock(
-            side_effect=httpx.TimeoutException("timeout")
-        )
+        mock_func = AsyncMock(side_effect=httpx.TimeoutException("timeout"))
 
         config = RetryConfig(max_attempts=3, backoff_factor=0.01)
 
@@ -158,14 +156,10 @@ class TestRetryAsync:
         response_200.status_code = 200
         response_200.content = b"success"
 
-        mock_func = AsyncMock(
-            side_effect=[response_503, response_503, response_200]
-        )
+        mock_func = AsyncMock(side_effect=[response_503, response_503, response_200])
 
         config = RetryConfig(
-            max_attempts=3,
-            backoff_factor=0.01,
-            retry_status_codes=[503]
+            max_attempts=3, backoff_factor=0.01, retry_status_codes=[503]
         )
 
         result = await retry_async(mock_func, config)
@@ -184,7 +178,7 @@ class TestRetryAsync:
         config = RetryConfig(
             max_attempts=3,
             backoff_factor=0.01,
-            retry_status_codes=[429, 503]  # 400 not in list
+            retry_status_codes=[429, 503],  # 400 not in list
         )
 
         result = await retry_async(mock_func, config)
@@ -198,10 +192,7 @@ class TestRetryAsync:
         import time
 
         mock_func = AsyncMock(
-            side_effect=[
-                httpx.TimeoutException("timeout"),
-                "success"
-            ]
+            side_effect=[httpx.TimeoutException("timeout"), "success"]
         )
 
         config = RetryConfig(max_attempts=3, backoff_factor=0.1)
@@ -221,6 +212,7 @@ class TestWithRetryDecorator:
 
     async def test_decorator_on_success(self):
         """Test decorator with successful function."""
+
         @with_retry(max_attempts=3, backoff_factor=0.01)
         async def successful_func():
             return "success"
@@ -247,6 +239,7 @@ class TestWithRetryDecorator:
 
     async def test_decorator_with_args(self):
         """Test decorator with function arguments."""
+
         @with_retry(max_attempts=3, backoff_factor=0.01)
         async def func_with_args(x, y, z=10):
             return x + y + z
@@ -256,6 +249,7 @@ class TestWithRetryDecorator:
 
     async def test_decorator_preserves_function_metadata(self):
         """Test that decorator preserves function metadata."""
+
         @with_retry(max_attempts=3)
         async def documented_func():
             """This is a documented function."""
@@ -292,7 +286,7 @@ class TestRetryableHTTPClient:
         mock_client.get = AsyncMock(
             side_effect=[
                 httpx.TimeoutException("timeout"),
-                MagicMock(status_code=200, content=b"success")
+                MagicMock(status_code=200, content=b"success"),
             ]
         )
 
@@ -316,20 +310,15 @@ class TestRetryableHTTPClient:
         response_200.status_code = 200
         response_200.content = b"success"
 
-        mock_client.post = AsyncMock(
-            side_effect=[response_503, response_200]
-        )
+        mock_client.post = AsyncMock(side_effect=[response_503, response_200])
 
         config = RetryConfig(
-            max_attempts=3,
-            backoff_factor=0.01,
-            retry_status_codes=[503]
+            max_attempts=3, backoff_factor=0.01, retry_status_codes=[503]
         )
         retry_client = RetryableHTTPClient(mock_client, config=config)
 
         response = await retry_client.post(
-            "https://api.example.com",
-            json={"data": "test"}
+            "https://api.example.com", json={"data": "test"}
         )
 
         assert response.status_code == 200
@@ -345,8 +334,7 @@ class TestRetryableHTTPClient:
         retry_client = RetryableHTTPClient(mock_client)
 
         response = await retry_client.put(
-            "https://api.example.com",
-            json={"status": "active"}
+            "https://api.example.com", json={"status": "active"}
         )
 
         assert response.status_code == 200
@@ -380,8 +368,7 @@ class TestRetryableHTTPClient:
 
         # Test GET with headers
         await retry_client.get(
-            "https://api.example.com",
-            headers={"Authorization": "Bearer token"}
+            "https://api.example.com", headers={"Authorization": "Bearer token"}
         )
         mock_client.get.assert_called_once()
 
@@ -389,6 +376,6 @@ class TestRetryableHTTPClient:
         await retry_client.post(
             "https://api.example.com",
             json={"data": "test"},
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         mock_client.post.assert_called_once()
