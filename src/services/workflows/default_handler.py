@@ -96,16 +96,31 @@ class DefaultHandler(BaseWorkflowHandler):
                 "validation_enabled": should_validate,
             }
 
-            # Optional validation (Phase 5 - not implemented yet)
+            # Optional validation (Phase 5)
             validation_report = None
             if should_validate:
-                logger.info("Validation requested but not implemented yet (Phase 5)")
-                # TODO: Implement validation in Phase 5
-                # from src.services.validation_service import ValidationService
-                # validation_service = ValidationService(secondary_client=factory.openai)
-                # validated = await validation_service.validate(content, pdf_path, query)
-                # content = validated.content
-                # validation_report = validated.report
+                logger.info("Running validation with secondary extraction")
+                from src.services.validation.validation_service import (
+                    ValidationService,
+                )
+
+                validation_service = ValidationService(secondary_client=factory.openai)
+                validated = await validation_service.validate(
+                    primary_content=content,
+                    pdf_path=pdf_path,
+                    query=query,
+                    sections=sections,
+                )
+                content = validated.content
+                validation_report = validated.report
+
+                # Update metadata if secondary was used
+                if validated.used_secondary:
+                    metadata["primary_provider"] = "mistral"
+                    metadata["final_provider"] = "openai"
+                    metadata["used_secondary"] = True
+                else:
+                    metadata["used_secondary"] = False
 
             execution_time = time.time() - start_time
             self._log_complete(len(content), metadata, execution_time)
